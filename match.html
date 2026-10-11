@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Fiche de match | FootStats RDC</title>
+<style>
+body{margin:0;background:#06152c;color:#f7faff;font:16px/1.55 Arial,sans-serif}.wrap{width:min(850px,92%);margin:35px auto}.panel{background:#0d2444;border:1px solid #254363;border-radius:16px;padding:22px}.brand{font-weight:900;color:#ffd21a}a{color:#83bdff}.muted{color:#aabbd2}.score{font-size:2.2rem;font-weight:900;text-align:center;margin:22px 0}.teams{display:grid;grid-template-columns:1fr auto 1fr;gap:10px;align-items:center}.teams strong:last-child{text-align:right}.data{margin-top:16px;padding-top:14px;border-top:1px solid #254363}.err{color:#ffd21a}@media(max-width:500px){.teams{font-size:.9rem}.score{font-size:1.5rem}}
+</style></head><body><main class="wrap"><p class="brand">⚽ PROVIDENCEIKPN FOOTSTATS RDC</p><p><a href="/">← Retour au tableau de bord</a></p><div class="panel"><p class="muted">FICHE DE MATCH</p><h1 id="title">Chargement du match…</h1><div id="body" class="muted">Récupération des données officielles depuis la source configurée.</div></div></main>
+<script>
+const id=new URLSearchParams(location.search).get('id');const body=document.getElementById('body');
+function esc(v){return String(v??'—').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+async function load(){if(!id){body.innerHTML='<p class="err">Identifiant de match manquant.</p>';return}
+try{const r=await fetch('/api/match/'+encodeURIComponent(id));const d=await r.json();if(!r.ok)throw new Error(d.detail||d.error||'Données indisponibles');
+document.getElementById('title').textContent=(d.home||'Équipe domicile')+' — '+(d.away||'Équipe visiteuse');
+const s=d.score?.fullTime||d.score?.regularTime||{};
+body.innerHTML=`<div class="teams"><strong>${esc(d.home)}</strong><div class="score">${s.home??'—'} – ${s.away??'—'}</div><strong>${esc(d.away)}</strong></div><div class="data"><p><b>Compétition :</b> ${esc(d.competition)}</p><p><b>Date :</b> ${esc(d.date?new Date(d.date).toLocaleString('fr-FR',{dateStyle:'medium',timeStyle:'short',timeZone:'Africa/Kinshasa'}):'Non disponible')} (heure de Kinshasa)</p><p><b>Statut :</b> ${esc(d.status)}</p><p><b>Lieu :</b> ${esc(d.venue||'Non communiqué')}</p><p class="muted">Source : ${esc(d.source)} · Mis à jour : ${esc(new Date(d.updatedAt).toLocaleString('fr-FR'))}</p></div>`;
+}catch(e){body.innerHTML='<p class="err">La fiche réelle ne peut pas être chargée : '+esc(e.message)+'. Vérifiez la configuration API et la couverture du fournisseur.</p>'}}
+load();
+</script></body></html>
